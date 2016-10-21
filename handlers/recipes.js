@@ -38,7 +38,7 @@ exports.create = function(request, reply){
 		request.payload.cuisine,
 		reuqest.payload.ingredients,
 		request.payload.directions,
-		request.auth.credentials.id
+		request.auth.credentials.id // use  the authenticaed user's id as the user_id
 	], (err) => {
 		if(err) throw err;
 		reply({status: "ok"});

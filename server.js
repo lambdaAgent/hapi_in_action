@@ -4,7 +4,11 @@ const db = new Sqlite3.Database("./dindin.sqlite");
 const server = new Hapi.Server();
 server.connection({port: 4000});
 
-server.bind({db: db});
+server.bind({
+	db: db,
+	apiBaseUrl: "http://localhost:4000/api",
+	webBaseUrl: "http://localhost:4000"
+});
 
 const validateFunc = (token, callback) => {
 	db.get("SELECT * FROM users WHERE token = ?", [token], (err,result) => {
@@ -21,10 +25,24 @@ const validateFunc = (token, callback) => {
 	});
 };
 
-server.register(require("hapi-auth-bearer-token"), (err) => {
+server.register([
+	require("dindin-api"), 
+	require("inert"),
+	require("vision")
+	], (err) => {
 	if(err) throw err;
-	server.auth.strategy("api", "bearer-access-token", {
-		validateFunc: validateFunc
+	
+	server.views({
+		engines:{
+			hbs: require("handlebars")
+		},
+		relativeTo: __dirname,
+		path: "./views",
+		layoutPath: "./views/layouts",
+		helpersPath: "./views/helpers",
+		layout:true,
+		isCached: false,
+		partialsPath: "./views/partials"
 	})
 
 	server.route(require("./routes"));
