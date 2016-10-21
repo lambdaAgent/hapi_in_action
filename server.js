@@ -5,10 +5,35 @@ const server = new Hapi.Server();
 server.connection({port: 4000});
 
 server.bind({db: db});
-server.route(require("./routes"));
 
-server.start((err) => {
+const validateFunc = (token, callback) => {
+	db.get("SELECT * FROM users WHERE token = ?", [token], (err,result) => {
+		if(er) return callback(err, false);
+
+		const user = result;
+		if(typeof user === "undefined"){
+			return callback(null, false);
+		}
+		callback(null, true, {
+			id: user.id,
+			username: user.username
+		});
+	});
+};
+
+server.register(require("hapi-auth-bearer-token"), (err) => {
 	if(err) throw err;
+	server.auth.strategy("api", "bearer-access-token", {
+		validateFunc: validateFunc
+	})
 
-	console.log("Server running at: ", server.info.uri);
+	server.route(require("./routes"));
+
+	server.start((err) => {
+		if(err) throw err;
+
+		console.log("Server running at: ", server.info.uri);
+	});
+
 })
+
