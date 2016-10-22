@@ -5,33 +5,23 @@ const server = new Hapi.Server();
 server.connection({port: 4000});
 
 server.bind({
-	db: db,
 	apiBaseUrl: "http://localhost:4000/api",
 	webBaseUrl: "http://localhost:4000"
 });
 
-const validateFunc = (token, callback) => {
-	db.get("SELECT * FROM users WHERE token = ?", [token], (err,result) => {
-		if(er) return callback(err, false);
-
-		const user = result;
-		if(typeof user === "undefined"){
-			return callback(null, false);
-		}
-		callback(null, true, {
-			id: user.id,
-			username: user.username
-		});
-	});
-};
-
 server.register([
 	require("dindin-api"), 
 	require("inert"),
-	require("vision")
-	], (err) => {
+	require("vision"),
+	require("hapi-auth-cookie")
+], (err) => {
 	if(err) throw err;
 	
+	server.auth.strategy("session", "cookie", "try", {
+		password: "70fe4f26ff9bcb5aab079875cadeec09",
+		isSecure: false
+	})
+
 	server.views({
 		engines:{
 			hbs: require("handlebars")

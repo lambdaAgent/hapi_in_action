@@ -1,22 +1,47 @@
 "use strict";
 
-const Recipes = require("./handlers/recipes");
-const Pages = require("./handlers/pages");
 const Assets = require("./handlers/assets");
+const Pages = require("./handlers/pages");
+const Actions = require('./handlers/actions');
 
 module.exports = [{
     method: 'GET',
     path: '/',
     handler: Pages.home
-}, {
-    method: 'GET',
-    path: '/{param*}',
-    handler: Assets.servePublicDirectory
 },{
     method: 'GET',
     path: '/recipes/{id}',
     handler: Pages.viewRecipe
-},];
+},{
+	method: ["GET", "POST"],
+	path: "/login",
+	handler(request, reply){
+		if(request.method === "get") Pages.login(request, reply)
+		else if (request.method === "post") Actions.login(request, reply)
+	}
+},{
+	method: ["GET", "POST"],
+	path: "/create",
+	handler(request, reply){
+		if(request.method === "get") Pages.createRecipe(request, reply)
+		else if(request.method === "post") Actions.createRecipe(request, reply)
+	},
+	config:{
+		auth: {
+			mode: 'required'
+		}
+	}
+},{
+	method: "GET",
+	path: "/logout",
+	handler: Actions.logout
+},{
+    method: 'GET',
+    path: '/{param*}',
+    handler: Assets.servePublicDirectory
+}];
+
+
 
 
 // module.exports = [{

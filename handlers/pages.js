@@ -28,7 +28,20 @@ exports.viewRecipe = function(request, reply){
 	Wreck.get(apiUrl, {json:true}, (err, res,payload) => {
 		if(err) throw err;
 
-		reply.view("recipe",{recipe: payload})
+		reply.view("recipe",{
+            recipe: payload,
+            user: request.auth.credentials
+        })
 	})	
 }
 
+
+exports.createRecipe = function(request, reply){
+    reply.view("create", {
+        user: request.auth.credentials
+    });
+}
+
+exports.login = function(request, reply){
+    reply.view("login");
+};
